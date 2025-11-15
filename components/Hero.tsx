@@ -3,7 +3,32 @@ import { Input } from "@/components/ui/input";
 import { Button } from "./ui/button";
 import { InfoIcon, TrendingUp, Users } from "lucide-react";
 import { SpinningText } from "./ui/spinning-text";
-import { InfiniteSlider } from "./motion-primitives/infinite-slider";
+import Link from "next/link";
+import { DosenRatingForm } from "./DosenRatingForm";
+import { HeroDosenPreview } from "./HeroDosenPreview";
+import SquigglyArrow from "./ui/squiggle-arrow";
+import { FeatureCarouselDemo } from "./FeatureCarousel";
+
+const heroTabs = [
+  {
+    id: "search",
+    label: "Cari dosen",
+    description: "Lihat review terbaru mahasiswa.",
+    href: "/dosen",
+  },
+  {
+    id: "rated",
+    label: "Daftar rating",
+    description: "Lihat seluruh kartu dosen.",
+    href: "/rated",
+  },
+  {
+    id: "rating",
+    label: "Buat rating",
+    description: "Bagikan pengalamanmu sekarang.",
+    href: "/dosen?tab=rating",
+  },
+];
 
 export default function Hero() {
   return (
@@ -18,8 +43,8 @@ export default function Hero() {
       >
         Rate your lecturers honestly
       </SpinningText>
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-0 text-center sm:gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.9fr)] lg:text-left">
-        <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 md:items-start">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl gap-10 px-0 text-center sm:gap-12 lg:text-left ">
+        <div className="flex flex-col items-center gap-4 sm:gap-6 md:gap-8 ">
           <span className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-100/60 px-4 py-1 text-xs font-semibold uppercase tracking-[0.35em] text-blue-700 dark:border-blue-400/40 dark:bg-blue-500/10 dark:text-blue-300">
             Platform review dosen
           </span>
@@ -30,7 +55,7 @@ export default function Hero() {
             </Highlighter>{" "}
             Lu
           </h1>
-          <p className="text-balance max-w-2xl text-sm text-gray-700 drop-shadow-md dark:text-white/80 sm:text-base md:text-lg">
+          <p className="text-balance max-w-2xl text-sm text-gray-700 drop-shadow-md dark:text-white/80 sm:text-base ">
             Temukan dan bagikan penilaian jujur untuk membantu mahasiswa memilih
             dosen terbaik.
           </p>
@@ -40,16 +65,38 @@ export default function Hero() {
               className="h-11 w-full shadow-lg sm:h-12 md:h-14"
             />
           </div>
+          <div className="w-full max-w-md rounded-2xl border border-blue-200/60 bg-white/70 p-2 shadow-lg dark:border-white/10 dark:bg-white/[0.04] sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+            <div className="grid gap-2 sm:grid-cols-2">
+              {heroTabs.map((tab) => (
+                <Link
+                  key={tab.id}
+                  href={tab.href}
+                  className="rounded-xl border border-transparent bg-blue-500/5 p-3 text-left transition hover:border-blue-400 hover:bg-blue-500/10 dark:hover:border-blue-300/40"
+                >
+                  <p className="text-sm font-semibold text-blue-600 dark:text-blue-300">
+                    {tab.label}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {tab.description}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2 sm:gap-3 md:gap-4 md:justify-start md:pt-4">
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs sm:gap-2 sm:text-sm"
+            >
               <InfoIcon className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Panduan
             </Button>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
-              <TrendingUp className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-              Top Dosen
-            </Button>
-            <Button variant="ghost" size="sm" className="gap-1.5 text-xs sm:gap-2 sm:text-sm">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-1.5 text-xs sm:gap-2 sm:text-sm"
+            >
               <Users className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               Komunitas
             </Button>
@@ -65,54 +112,34 @@ export default function Hero() {
             </div>
           </div>
         </div>
-        <div className="relative flex justify-center lg:justify-end">
-          <div className="flex w-full max-w-sm flex-col gap-6 rounded-3xl border border-border/40 bg-white/80 p-6 shadow-2xl shadow-blue-500/10 backdrop-blur-sm dark:border-white/10 dark:bg-background/60 lg:max-w-md">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-500 dark:text-blue-300">
-                  Tren Minggu Ini
-                </p>
-                <h2 className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-                  Rating dosen paling dicari
-                </h2>
+
+        {/* Feature Carousel Section */}
+        <section className="relative w-full py-12 sm:py-16 md:py-20">
+          <FeatureCarouselDemo />
+        </section>
+
+        <div className="flex w-full justify-center">
+          <SquigglyArrow direction="down" className="text-[#87cefa]" />
+        </div>
+
+        <div className="relative flex  ">
+          <div className="flex w-full   flex-col gap-6">
+            <div className="rounded-3xl border border-border/40 bg-white/80 p-5 shadow-2xl shadow-blue-500/10 backdrop-blur-sm dark:border-white/10 dark:bg-background/60 ">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-500 dark:text-blue-300">
+                    Buat rating
+                  </p>
+                  <h2 className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
+                    Ceritakan pengalamanmu
+                  </h2>
+                </div>
               </div>
-              <TrendingUp className="h-6 w-6 text-blue-500 dark:text-blue-300" />
+              <div className="mt-4">
+                <DosenRatingForm nested />
+              </div>
             </div>
-            <InfiniteSlider speedOnHover={50} gap={12} className="mt-2">
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e02ad24c5e36ddcd1957ad35677"
-                alt="Dean blunt - Black Metal 2"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e02af73f776b92d4614152fb141"
-                alt="Jungle Jack - JUNGLE DES ILLUSIONS VOL 2"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e02ecdb8f824367a53468100faf"
-                alt="Yung Lean - Stardust"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e021624590458126fc8b8c64c2f"
-                alt="Lana Del Rey - Ultraviolence"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e020dcf0f3680cff56fe5ff2288"
-                alt="A$AP Rocky - Tailor Swif"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-              <img
-                src="https://i.scdn.co/image/ab67616d00001e02bc1028b7e9cd2b17c770a520"
-                alt="Midnight Miami (feat Konvy) - Nino Paid, Konvy"
-                className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
-              />
-            </InfiniteSlider>
-            <p className="text-sm text-muted-foreground">
-              Dapatkan insight dari mahasiswa lain dan buat keputusan kuliah dengan percaya diri.
-            </p>
+            <HeroDosenPreview />
           </div>
         </div>
       </div>

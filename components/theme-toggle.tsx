@@ -34,21 +34,35 @@ export function ThemeToggle() {
   };
 
   return (
-    <Button variant="ghost" size="icon" onClick={cycleTheme}>
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={cycleTheme}
+      className="relative"
+    >
       <Sun
-        className={`h-[1.2rem] w-[1.2rem] transition-all ${
-          theme === "light" ? "rotate-0 scale-100" : "rotate-90 scale-0"
-        }`}
+        className={`h-[1.2rem] w-[1.2rem] absolute transition-all
+${
+  theme === "light"
+    ? "animate-fade-in animate-rotate-in"
+    : "opacity-0 animate-fade-out"
+}`}
       />
       <Moon
-        className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${
-          theme === "dark" ? "rotate-0 scale-100" : "rotate-90 scale-0"
-        }`}
+        className={`h-[1.2rem] w-[1.2rem] absolute transition-all
+${
+  theme === "dark"
+    ? "animate-fade-in animate-rotate-in"
+    : "opacity-0 animate-fade-out"
+}`}
       />
       <Monitor
-        className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${
-          theme === "system" ? "rotate-0 scale-100" : "rotate-90 scale-0"
-        }`}
+        className={`h-[1.2rem] w-[1.2rem] absolute transition-all
+${
+  theme === "system"
+    ? "animate-fade-in animate-rotate-in"
+    : "opacity-0 animate-fade-out"
+}`}
       />
       <span className="sr-only">Toggle Theme</span>
     </Button>

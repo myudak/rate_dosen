@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import Navbar from "@/components/Navbar";
+import { ConvexClientProvider } from "@/components/providers/convex-client-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -24,48 +25,52 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div className="relative min-h-screen w-full bg-white dark:bg-background">
-            {/* Light Mode Background */}
-            <div
-              className="fixed inset-0 z-0 dark:hidden"
-              style={{
-                backgroundImage: `
+        <ConvexClientProvider url={convexUrl}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <div className="relative min-h-screen w-full bg-white dark:bg-background">
+              {/* Light Mode Background */}
+              <div
+                className="fixed inset-0 z-0 dark:hidden"
+                style={{
+                  backgroundImage: `
                   linear-gradient(to right, rgba(229,231,235,0.8) 1px, transparent 1px),
                   linear-gradient(to bottom, rgba(229,231,235,0.8) 1px, transparent 1px),
                   radial-gradient(circle 500px at 20% 80%, rgba(139,92,246,0.3), transparent),
                   radial-gradient(circle 500px at 80% 20%, rgba(59,130,246,0.3), transparent)
                 `,
-                backgroundSize: "48px 48px, 48px 48px, 100% 100%, 100% 100%",
-              }}
-            />
+                  backgroundSize: "48px 48px, 48px 48px, 100% 100%, 100% 100%",
+                }}
+              />
 
-            {/* Dark Mode Background */}
-            <div
-              className="fixed inset-0 z-0 hidden dark:block"
-              style={{
-                background:
-                  "radial-gradient(125% 125% at 50% 10%, #000000 40%, #0d1a36 100%)",
-              }}
-            />
+              {/* Dark Mode Background */}
+              <div
+                className="fixed inset-0 z-0 hidden dark:block"
+                style={{
+                  background:
+                    "radial-gradient(125% 125% at 50% 10%, #000000 40%, #0d1a36 100%)",
+                }}
+              />
 
-            {/* Navbar */}
-            <Navbar />
+              {/* Navbar */}
+              <Navbar />
 
-            {/* Content */}
-            <div className="relative z-10">{children}</div>
-          </div>
-        </ThemeProvider>
+              {/* Content */}
+              <div className="relative z-10">{children}</div>
+            </div>
+          </ThemeProvider>
+        </ConvexClientProvider>
       </body>
     </html>
   );
