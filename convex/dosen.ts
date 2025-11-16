@@ -165,6 +165,7 @@ export const findDosen = query({
         createdAt: rating.createdAt,
         tags: rating.tags,
         student: rating.student,
+        wouldTakeAgain: rating.wouldTakeAgain,
       }));
 
     return {
@@ -188,6 +189,7 @@ export const createRating = mutation({
     tags: v.optional(v.array(v.string())),
     comment: v.optional(v.string()),
     student: v.optional(v.string()),
+    wouldTakeAgain: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const name = args.name.trim();
@@ -256,6 +258,7 @@ export const createRating = mutation({
       dosenId: dosen._id,
       overall: overallScore,
       difficulty: difficultyScore,
+      wouldTakeAgain: args.wouldTakeAgain,
       comment: args.comment?.trim(),
       course: args.course?.trim(),
       tags: normalizedTags,

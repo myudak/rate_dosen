@@ -28,6 +28,7 @@ export default defineSchema({
     dosenId: v.id("dosen"),
     overall: v.number(),
     difficulty: v.number(),
+    wouldTakeAgain: v.optional(v.boolean()),
     comment: v.optional(v.string()),
     course: v.optional(v.string()),
     tags: v.array(v.string()),

@@ -55,7 +55,13 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <RainbowButton className="hidden sm:inline-flex h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5">
+          <RainbowButton
+            onClick={() => {
+              // nextjs open /login
+              window.location.href = "/login";
+            }}
+            className="hidden sm:inline-flex h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5"
+          >
             Loginn
           </RainbowButton>
           <Drawer direction="bottom">

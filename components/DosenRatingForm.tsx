@@ -1,11 +1,34 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { Loader2, PlusCircle } from "lucide-react";
+import {
+  AlertCircle,
+  Check,
+  ChevronDown,
+  ChevronsUpDown,
+  Loader2,
+  PlusCircle,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { InteractiveHoverButton } from "./ui/interactive-hover-button";
 
 const CREATE_RATING = "dosen:createRating" as const;
 const SEARCH_DOSEN = "dosen:searchDosen" as const;
@@ -27,6 +50,7 @@ type FormState = {
   difficulty: number;
   comment: string;
   student: string;
+  wouldTakeAgain: boolean | null;
 };
 
 const initialState: FormState = {
@@ -37,6 +61,7 @@ const initialState: FormState = {
   difficulty: 3,
   comment: "",
   student: "",
+  wouldTakeAgain: null,
 };
 
 type Level = {
@@ -47,18 +72,50 @@ type Level = {
 
 const qualityLevels: Level[] = [
   { value: 1, label: "Zonk banget", color: "bg-rose-300/90 hover:bg-rose-300" },
-  { value: 2, label: "Masih nanggung", color: "bg-orange-200/90 hover:bg-orange-200" },
-  { value: 3, label: "Lumayan asik", color: "bg-amber-200/90 hover:bg-amber-200" },
-  { value: 4, label: "Top markotop", color: "bg-lime-200/90 hover:bg-lime-200" },
-  { value: 5, label: "Legend banget", color: "bg-emerald-300/90 hover:bg-emerald-300" },
+  {
+    value: 2,
+    label: "Masih nanggung",
+    color: "bg-orange-200/90 hover:bg-orange-200",
+  },
+  {
+    value: 3,
+    label: "Lumayan asik",
+    color: "bg-amber-200/90 hover:bg-amber-200",
+  },
+  {
+    value: 4,
+    label: "Top markotop",
+    color: "bg-lime-200/90 hover:bg-lime-200",
+  },
+  {
+    value: 5,
+    label: "Legend banget",
+    color: "bg-emerald-300/90 hover:bg-emerald-300",
+  },
 ];
 
 const difficultyLevels: Level[] = [
-  { value: 1, label: "Santuy beuud", color: "bg-emerald-300/90 hover:bg-emerald-300" },
+  {
+    value: 1,
+    label: "Santuy beuud",
+    color: "bg-emerald-300/90 hover:bg-emerald-300",
+  },
   { value: 2, label: "Masih aman", color: "bg-lime-200/90 hover:bg-lime-200" },
-  { value: 3, label: "Lumayan ribet", color: "bg-amber-200/90 hover:bg-amber-200" },
-  { value: 4, label: "Serius banget", color: "bg-orange-200/90 hover:bg-orange-200" },
-  { value: 5, label: "Bikin migren", color: "bg-rose-300/90 hover:bg-rose-300" },
+  {
+    value: 3,
+    label: "Lumayan ribet",
+    color: "bg-amber-200/90 hover:bg-amber-200",
+  },
+  {
+    value: 4,
+    label: "Serius banget",
+    color: "bg-orange-200/90 hover:bg-orange-200",
+  },
+  {
+    value: 5,
+    label: "Bikin migren",
+    color: "bg-rose-300/90 hover:bg-rose-300",
+  },
 ];
 
 const popularTags = [
@@ -86,9 +143,9 @@ export function DosenRatingForm({
     name: defaultName ?? "",
     department: defaultDepartment ?? "",
   });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
-    "idle"
-  );
+  const [status, setStatus] = useState<
+    "idle" | "loading" | "success" | "error"
+  >("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const createRating = useMutation(CREATE_RATING as any);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
@@ -99,13 +156,20 @@ export function DosenRatingForm({
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [selectedDosen, setSelectedDosen] = useState<DosenOption | null>(null);
 
-  const universities = useQuery(
-    LIST_UNIVERSITIES as any
-  ) as UniversityOption[] | undefined;
-  const dosenOptions = useQuery(
-    SEARCH_DOSEN as any,
-    { term: debouncedQuery, limit: 8 }
-  ) as DosenOption[] | undefined;
+  const universities = useQuery(LIST_UNIVERSITIES as any) as
+    | UniversityOption[]
+    | undefined;
+  const dosenOptions = useQuery(SEARCH_DOSEN as any, {
+    term: debouncedQuery,
+    limit: 8,
+  }) as DosenOption[] | undefined;
+  const selectedUniversity = useMemo(
+    () =>
+      universities?.find(
+        (university) => university.slug === selectedUniversitySlug
+      ),
+    [universities, selectedUniversitySlug]
+  );
 
   useEffect(() => {
     const timer = setTimeout(() => setDebouncedQuery(dosenQuery), 300);
@@ -149,6 +213,14 @@ export function DosenRatingForm({
       setErrorMessage("Pilih universitas terlebih dahulu.");
       return;
     }
+    if (form.wouldTakeAgain === null) {
+      setErrorMessage("Pilih dulu mau ambil dosen ini lagi atau enggak.");
+      return;
+    }
+    if (!form.name.trim()) {
+      setErrorMessage("Pilih atau buat nama dosen terlebih dahulu.");
+      return;
+    }
     setStatus("loading");
     setErrorMessage(null);
     try {
@@ -160,6 +232,7 @@ export function DosenRatingForm({
         comment: form.comment || undefined,
         overall: Number(form.overall),
         difficulty: Number(form.difficulty),
+        wouldTakeAgain: form.wouldTakeAgain ?? undefined,
         tags: selectedTags,
         student: form.student || undefined,
       });
@@ -172,6 +245,7 @@ export function DosenRatingForm({
         course: "",
         comment: "",
         student: "",
+        wouldTakeAgain: null,
       }));
       setSelectedTags([]);
       setSelectedDosen(null);
@@ -212,24 +286,36 @@ export function DosenRatingForm({
             department: "",
           }));
         }}
+        onCreateNew={(name) => {
+          const fallbackUniversitySlug =
+            selectedUniversitySlug ??
+            selectedUniversity?.slug ??
+            universities?.[0]?.slug ??
+            null;
+          const newSelection: DosenOption = {
+            id: `new-${Date.now()}`,
+            name,
+            department: form.department || "",
+            slug: "",
+            universitySlug: fallbackUniversitySlug ?? "",
+            universityName:
+              selectedUniversity?.name ??
+              universities?.find((u) => u.slug === fallbackUniversitySlug)
+                ?.name ??
+              "Universitas belum dipilih",
+          };
+          setSelectedDosen(newSelection);
+          setForm((previous) => ({
+            ...previous,
+            name,
+          }));
+          setDosenQuery(name);
+          if (!selectedUniversitySlug && fallbackUniversitySlug) {
+            setSelectedUniversitySlug(fallbackUniversitySlug);
+          }
+        }}
       />
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="space-y-1.5">
-          <label className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-            Nama dosen
-          </label>
-          <Input
-            required
-            value={form.name}
-            onChange={(event) =>
-              setForm((previous) => ({
-                ...previous,
-                name: event.target.value,
-              }))
-            }
-            placeholder="contoh: Ibu Sari"
-          />
-        </div>
         <div className="space-y-1.5">
           <label className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
             Jurusan / Prodi
@@ -282,6 +368,15 @@ export function DosenRatingForm({
         selectedSlug={selectedUniversitySlug}
         onSelect={(slug) => setSelectedUniversitySlug(slug)}
       />
+      <WouldTakeAgainSelector
+        value={form.wouldTakeAgain}
+        onChange={(wouldTakeAgain) =>
+          setForm((previous) => ({
+            ...previous,
+            wouldTakeAgain,
+          }))
+        }
+      />
       <div className="grid gap-3 sm:grid-cols-2">
         <RatingPillSelector
           title="Rating keseluruhan"
@@ -306,22 +401,16 @@ export function DosenRatingForm({
           }
         />
       </div>
-      <div className="space-y-1.5">
-        <label className="text-xs uppercase tracking-[0.3em] text-muted-foreground">
-          Ceritakan pengalamanmu
-        </label>
-        <textarea
-          value={form.comment}
-          onChange={(event) =>
-            setForm((previous) => ({
-              ...previous,
-              comment: event.target.value,
-            }))
-          }
-          placeholder="Bagikan tips untuk mahasiswa lain..."
-          className="min-h-[120px] w-full rounded-2xl border border-border/60 bg-background/60 p-3 text-sm text-foreground outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 dark:bg-white/[0.02]"
-        />
-      </div>
+
+      <ReviewSection
+        value={form.comment}
+        onChange={(value) =>
+          setForm((previous) => ({
+            ...previous,
+            comment: value,
+          }))
+        }
+      />
       <TagPicker
         tags={selectedTags}
         onToggle={(tag) =>
@@ -340,7 +429,7 @@ export function DosenRatingForm({
           Terima kasih! Rating kamu berhasil disimpan.
         </div>
       )}
-      <Button
+      <InteractiveHoverButton
         type="submit"
         disabled={isSubmitting}
         className="h-11 w-full gap-2 rounded-2xl text-base font-semibold"
@@ -356,7 +445,7 @@ export function DosenRatingForm({
             Kirim rating
           </>
         )}
-      </Button>
+      </InteractiveHoverButton>
     </form>
   );
 }
@@ -373,9 +462,7 @@ function RatingPillSelector({ title, value, levels, onChange }: SelectorProps) {
 
   const displayValue = hoverValue ?? value;
   const activeLevel = useMemo(() => {
-    return (
-      levels.find((level) => level.value === displayValue) ?? levels[0]
-    );
+    return levels.find((level) => level.value === displayValue) ?? levels[0];
   }, [levels, displayValue]);
 
   return (
@@ -470,6 +557,172 @@ function TagPicker({ tags, onToggle }: TagPickerProps) {
   );
 }
 
+type WouldTakeAgainSelectorProps = {
+  value: boolean | null;
+  onChange: (value: boolean) => void;
+};
+
+function WouldTakeAgainSelector({
+  value,
+  onChange,
+}: WouldTakeAgainSelectorProps) {
+  const options = [
+    {
+      value: true,
+      label: "Yes",
+      icon: Check,
+      color: "green",
+    },
+    {
+      value: false,
+      label: "No",
+      icon: X,
+      color: "red",
+    },
+  ];
+
+  return (
+    <div className="rounded-3xl border border-border/60 bg-white/80 p-4 shadow-inner dark:border-white/10 dark:bg-white/[0.03]">
+      <p className="text-sm font-semibold text-foreground">
+        Mau ambil dosen ini lagi?
+        <span className="text-red-500"> *</span>
+      </p>
+      <div className="mt-4 flex items-center gap-8 justify-center">
+        {options.map((option) => {
+          const active = value === option.value;
+          const Icon = option.icon;
+          const isYes = option.color === "green";
+          const activeColor = isYes
+            ? "border-emerald-500 ring-emerald-500/25 text-emerald-600 dark:text-emerald-300"
+            : "border-rose-500 ring-rose-500/25 text-rose-600 dark:text-rose-300";
+          const hoverColor = isYes
+            ? "group-hover:border-emerald-400 group-hover:bg-emerald-50/80 dark:group-hover:bg-emerald-400/15"
+            : "group-hover:border-rose-400 group-hover:bg-rose-50/80 dark:group-hover:bg-rose-400/15";
+
+          return (
+            <button
+              key={option.label}
+              type="button"
+              onClick={() => onChange(option.value)}
+              className="group flex cursor-pointer flex-col items-center gap-2 focus-visible:outline-none"
+            >
+              <span
+                className={cn(
+                  "flex h-12 w-12 items-center justify-center rounded-full border-2 border-border/60 bg-white/90 transition-all duration-200 shadow-sm dark:border-white/15 dark:bg-white/[0.06]",
+                  hoverColor,
+                  active &&
+                    `${activeColor} ring-4 scale-105 shadow-md hover:scale-105`
+                )}
+              >
+                <Icon
+                  className={cn(
+                    "h-5 w-5 opacity-60 transition-transform duration-200",
+                    active && "opacity-100 scale-110",
+                    isYes
+                      ? "text-emerald-500 group-hover:text-emerald-600 dark:text-emerald-300"
+                      : "text-rose-500 group-hover:text-rose-600 dark:text-rose-300"
+                  )}
+                />
+              </span>
+              <span
+                className={cn(
+                  "text-sm text-muted-foreground transition-colors duration-200",
+                  active &&
+                    (isYes
+                      ? "font-semibold text-emerald-600 dark:text-emerald-300"
+                      : "font-semibold text-rose-600 dark:text-rose-300")
+                )}
+              >
+                {option.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+type ReviewSectionProps = {
+  value: string;
+  onChange: (value: string) => void;
+};
+
+function ReviewSection({ value, onChange }: ReviewSectionProps) {
+  const maxLength = 350;
+  const remaining = maxLength - value.length;
+  const [showGuidelines, setShowGuidelines] = useState(true);
+
+  return (
+    <div className="space-y-3 rounded-3xl border border-border/60 bg-white/80 p-4 shadow-inner dark:border-white/10 dark:bg-white/[0.03]">
+      <div className="space-y-1">
+        <p className="text-sm font-semibold text-foreground">
+          Tulis Review <span className="text-red-500">*</span>
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Ceritakan pengalamanmu tentang gaya ngajar, cara jelasin materi, atau tips buat mahasiswa lain.
+        </p>
+      </div>
+      <div className="rounded-2xl border border-border/70 bg-white/90 p-3 shadow-sm dark:border-white/10 dark:bg-white/[0.04]">
+        <button
+          type="button"
+          onClick={() => setShowGuidelines((prev) => !prev)}
+          className="flex w-full items-center justify-between gap-3 text-left"
+          aria-expanded={showGuidelines}
+        >
+          <div className="flex items-center gap-2">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-100 text-amber-700 dark:bg-amber-400/20 dark:text-amber-100">
+              <AlertCircle className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="font-semibold text-foreground">Guidelines</p>
+              <p className="text-sm text-muted-foreground">Jaga sopan santun ya</p>
+            </div>
+          </div>
+          <ChevronDown
+            className={cn(
+              "h-5 w-5 text-muted-foreground transition-transform duration-200",
+              showGuidelines ? "rotate-180" : "rotate-0"
+            )}
+          />
+        </button>
+        <div
+          className={cn(
+            "grid transition-[grid-template-rows,opacity] duration-200 ease-out",
+            showGuidelines ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+          )}
+        >
+          <div className="overflow-hidden">
+            <ul className="mt-3 list-disc space-y-2 pl-10 text-sm text-muted-foreground">
+              <li>Hindari kata kasar atau ngejelek-jelekin orang.</li>
+              <li>Jangan asal nuduh (misal SARA/favoritisme) tanpa bukti.</li>
+              <li>Ceritain hal berguna: gaya ngajar, tipe tugas/ujian, tips lulus.</li>
+            </ul>
+            <Link
+              href="/panduan"
+              className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-blue-600 underline underline-offset-2 hover:text-blue-700 dark:text-blue-300"
+            >
+              Lihat panduan lengkap
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="rounded-2xl border border-border/60 bg-background/60 shadow-inner focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20 dark:bg-white/[0.02]">
+        <textarea
+          value={value}
+          maxLength={maxLength}
+          onChange={(event) => onChange(event.target.value)}
+          placeholder="Apa yang perlu diketahui mahasiswa lain tentang dosen ini?"
+          className="min-h-[150px] w-full rounded-2xl border-none bg-transparent p-3 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+        />
+        <div className="flex justify-end px-3 pb-2 text-[12px] text-muted-foreground">
+          {remaining}/{maxLength}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 type DosenPickerProps = {
   options?: DosenOption[];
   searchValue: string;
@@ -477,6 +730,7 @@ type DosenPickerProps = {
   selected: DosenOption | null;
   onSelect: (option: DosenOption) => void;
   onClear: () => void;
+  onCreateNew: (name: string) => void;
 };
 
 function DosenPicker({
@@ -486,7 +740,47 @@ function DosenPicker({
   selected,
   onSelect,
   onClear,
+  onCreateNew,
 }: DosenPickerProps) {
+  const [open, setOpen] = useState(false);
+  const isLoading = !options;
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const [triggerWidth, setTriggerWidth] = useState<number>();
+  const trimmedQuery = searchValue.trim();
+  const showCreateNew =
+    trimmedQuery.length > 0 && !isLoading && (options?.length ?? 0) === 0;
+  const showEmpty =
+    !isLoading && (options?.length ?? 0) === 0 && !showCreateNew;
+
+  const handleSelect = (option: DosenOption) => {
+    onSelect(option);
+    onSearchChange(option.name);
+    setOpen(false);
+  };
+
+  const handleClear = () => {
+    onClear();
+    onSearchChange("");
+  };
+
+  const handleCreateNew = (name: string) => {
+    onCreateNew(name);
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    if (!triggerRef.current) return;
+    const updateWidth = () => {
+      if (triggerRef.current) {
+        setTriggerWidth(triggerRef.current.offsetWidth);
+      }
+    };
+    updateWidth();
+    const resizeObserver = new ResizeObserver(updateWidth);
+    resizeObserver.observe(triggerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
   return (
     <div className="space-y-2 rounded-3xl border border-border/50 bg-white/70 p-4 shadow-inner dark:border-white/10 dark:bg-white/[0.03]">
       <div className="flex items-center justify-between">
@@ -494,54 +788,116 @@ function DosenPicker({
           Pilih dosen
         </label>
         {selected && (
-          <button
+          <Button
             type="button"
-            onClick={onClear}
-            className="text-xs font-semibold text-blue-600 hover:underline dark:text-blue-300"
+            variant="ghost"
+            size="sm"
+            className="h-auto px-2 text-xs font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-300 dark:hover:text-blue-200"
+            onClick={handleClear}
           >
             Ganti dosen
-          </button>
+          </Button>
         )}
       </div>
-      <Input
-        value={searchValue}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Cari dosen yang sudah ada..."
-      />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            ref={triggerRef}
+            className="flex h-11 w-full items-center justify-between rounded-2xl border-border/60 bg-white/80 px-3 text-left font-normal shadow-inner hover:border-blue-400 hover:bg-white dark:border-white/10 dark:bg-white/[0.04]"
+          >
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground">
+                {selected ? selected.name : "Cari atau pilih dosen"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {selected
+                  ? `${selected.department} - ${selected.universityName}`
+                  : "Mulai ketik untuk mencari di database dosen"}
+              </span>
+            </div>
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-60" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          align="start"
+          className="p-0"
+          style={
+            triggerWidth
+              ? {
+                  width: `${triggerWidth}px`,
+                }
+              : undefined
+          }
+        >
+          <Command shouldFilter={false}>
+            <CommandInput
+              placeholder="Cari dosen yang sudah ada..."
+              value={searchValue}
+              onValueChange={onSearchChange}
+            />
+            <CommandList>
+              <CommandGroup>
+                {(options ?? []).map((option) => (
+                  <CommandItem
+                    key={option.id}
+                    value={`${option.name} ${option.department}`}
+                    onSelect={() => handleSelect(option)}
+                  >
+                    <div className="flex flex-col items-start">
+                      <p className="text-sm font-semibold text-foreground">
+                        {option.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {option.department}
+                      </p>
+                      <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground/80">
+                        {option.universityName}
+                      </p>
+                    </div>
+                    <Check
+                      className={cn(
+                        "ml-auto h-4 w-4 opacity-0",
+                        selected?.id === option.id && "opacity-100"
+                      )}
+                    />
+                  </CommandItem>
+                ))}
+                {showCreateNew && (
+                  <CommandItem
+                    value={trimmedQuery}
+                    onSelect={() => handleCreateNew(trimmedQuery)}
+                  >
+                    Buat dosen baru: "{trimmedQuery}"
+                  </CommandItem>
+                )}
+              </CommandGroup>
+              {(showEmpty || isLoading) && (
+                <CommandEmpty>
+                  {isLoading ? (
+                    <span className="flex items-center justify-center gap-2 text-muted-foreground">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Memuat dosen...
+                    </span>
+                  ) : (
+                    "Tidak ada dosen ditemukan. Isi form di bawah untuk menambahkan."
+                  )}
+                </CommandEmpty>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
       {selected && (
         <div className="rounded-2xl border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-sm text-blue-600 dark:text-blue-300">
-          {selected.name} • {selected.department}
-          <p className="text-xs text-blue-500/80">
-            {selected.universityName}
+          <p className="font-semibold text-foreground">
+            {selected.name} - {selected.department}
           </p>
+          <p className="text-xs text-blue-500/80">{selected.universityName}</p>
         </div>
       )}
-      <div className="max-h-48 space-y-1 overflow-y-auto pt-2">
-        {(options ?? []).length === 0 ? (
-          <p className="text-xs text-muted-foreground">
-            Tidak ada dosen ditemukan. Isi form di bawah untuk menambahkan.
-          </p>
-        ) : (
-          options?.map((option) => (
-            <button
-              type="button"
-              key={option.id}
-              onClick={() => onSelect(option)}
-              className="w-full rounded-xl border border-border/60 px-3 py-2 text-left transition hover:border-blue-400 hover:bg-blue-500/5"
-            >
-              <p className="text-sm font-semibold text-foreground">
-                {option.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {option.department}
-              </p>
-              <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground/70">
-                {option.universityName}
-              </p>
-            </button>
-          ))
-        )}
-      </div>
     </div>
   );
 }

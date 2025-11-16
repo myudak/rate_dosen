@@ -8,6 +8,7 @@ import { DosenRatingForm } from "./DosenRatingForm";
 import { HeroDosenPreview } from "./HeroDosenPreview";
 import SquigglyArrow from "./ui/squiggle-arrow";
 import { FeatureCarouselDemo } from "./FeatureCarousel";
+import { InfiniteSlider } from "./motion-primitives/infinite-slider";
 
 const heroTabs = [
   {
@@ -53,11 +54,11 @@ export default function Hero() {
             <Highlighter action="highlight" color="#87CEFA">
               Dosen
             </Highlighter>{" "}
-            Lu
+            Kamu
           </h1>
           <p className="text-balance max-w-2xl text-sm text-gray-700 drop-shadow-md dark:text-white/80 sm:text-base ">
-            Temukan dan bagikan penilaian jujur untuk membantu mahasiswa memilih
-            dosen terbaik.
+            Temukan dan bagikan penilaian jujur untuk membantu mahasiswa memilih{" "}
+            <Highlighter action="underline">dosen terbaik.</Highlighter>
           </p>
           <div className="w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl">
             <Input
@@ -101,6 +102,7 @@ export default function Hero() {
               Komunitas
             </Button>
           </div>
+
           <div className="flex flex-wrap items-center justify-center gap-4 pt-2 text-xs text-muted-foreground sm:text-sm md:justify-start">
             <div className="flex items-center gap-1.5">
               <Users className="h-4 w-4 text-blue-500" />
@@ -113,35 +115,38 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Feature Carousel Section */}
-        <section className="relative w-full py-12 sm:py-16 md:py-20">
-          <FeatureCarouselDemo />
-        </section>
-
-        <div className="flex w-full justify-center">
-          <SquigglyArrow direction="down" className="text-[#87cefa]" />
-        </div>
-
-        <div className="relative flex  ">
-          <div className="flex w-full   flex-col gap-6">
-            <div className="rounded-3xl border border-border/40 bg-white/80 p-5 shadow-2xl shadow-blue-500/10 backdrop-blur-sm dark:border-white/10 dark:bg-background/60 ">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-500 dark:text-blue-300">
-                    Buat rating
-                  </p>
-                  <h2 className="mt-2 text-lg font-semibold text-gray-900 dark:text-white">
-                    Ceritakan pengalamanmu
-                  </h2>
-                </div>
-              </div>
-              <div className="mt-4">
-                <DosenRatingForm nested />
-              </div>
-            </div>
-            <HeroDosenPreview />
-          </div>
-        </div>
+        <InfiniteSlider speedOnHover={50} gap={12} className="m-0">
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e02ad24c5e36ddcd1957ad35677"
+            alt="Dean blunt - Black Metal 2"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e02af73f776b92d4614152fb141"
+            alt="Jungle Jack - JUNGLE DES ILLUSIONS VOL 2"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e02ecdb8f824367a53468100faf"
+            alt="Yung Lean - Stardust"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e021624590458126fc8b8c64c2f"
+            alt="Lana Del Rey - Ultraviolence"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e020dcf0f3680cff56fe5ff2288"
+            alt="A$AP Rocky - Tailor Swif"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+          <img
+            src="https://i.scdn.co/image/ab67616d00001e02bc1028b7e9cd2b17c770a520"
+            alt="Midnight Miami (feat Konvy) - Nino Paid, Konvy"
+            className="aspect-square w-16 rounded-xl object-cover sm:w-20 md:w-24"
+          />
+        </InfiniteSlider>
       </div>
     </>
   );

@@ -262,3 +262,7 @@
 .logo-link:hover .logo-svg {
   transform: rotateY(360deg);
 }
+
+::view-transition-old(root), ::view-transition-new(root) {
+    animation: none;
+    mix-blend-mode: normal;}
