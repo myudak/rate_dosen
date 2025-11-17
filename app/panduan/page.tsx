@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 
-import { DocActionBar } from "@/components/DocActionBar";
+import { DocActionBar } from "@/app/panduan/_components/DocActionBar";
 
 const heroDescription =
   "Baca dulu sebelum kirim review: jaga sopan santun, hormati privasi, dan patuhi ketentuan hukum yang berlaku di Indonesia.";

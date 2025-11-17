@@ -8,7 +8,7 @@ import { DosenRatingForm } from "./DosenRatingForm";
 import { HeroDosenPreview } from "./HeroDosenPreview";
 import SquigglyArrow from "./ui/squiggle-arrow";
 import { FeatureCarouselDemo } from "./FeatureCarousel";
-import { InfiniteSlider } from "./motion-primitives/infinite-slider";
+import { InfiniteSlider } from "./ui/motion-primitives/infinite-slider";
 
 const heroTabs = [
   {

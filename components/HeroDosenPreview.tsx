@@ -39,13 +39,15 @@ export function HeroDosenPreview() {
           </div>
         )}
         {results &&
-          results.slice(0, 2).map((dosen) => (
-            <DosenRatedCard
-              key={dosen.id}
-              dosen={dosen}
-              href={`/dosen/${dosen.slug}`}
-            />
-          ))}
+          results
+            .slice(0, 2)
+            .map((dosen) => (
+              <DosenRatedCard
+                key={dosen.id}
+                dosen={dosen}
+                href={`/dosen/${dosen.slug}`}
+              />
+            ))}
       </div>
     </div>
   );
